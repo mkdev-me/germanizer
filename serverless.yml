@@ -1,0 +1,30 @@
+service: germanizer
+
+provider:
+  name: aws
+  runtime: ruby2.7
+  memorySize: 128
+  region: eu-central-1
+  stage: dev
+  profile: labs
+  iamManagedPolicies:
+    - 'arn:aws:iam::aws:policy/TranslateFullAccess'
+
+functions:
+  translate:
+    handler: handler.translate
+    description: "Translate any text to the German language"
+    events:
+      - http:
+          path: /
+          method: post
+    environment:
+      TG_TOKEN: ${ssm:germanizer-token~true}
+
+custom:
+  hooks:
+    package:initialize:
+      - bundle install --deployment
+
+plugins:
+  - serverless-hooks-plugin
