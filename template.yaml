@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  germanizer
+
+Globals:
+  Function:
+    Timeout: 3
+    Tracing: Active
+  Api:
+    TracingEnabled: True
+
+Resources:
+  GermanizerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      FunctionUrlConfig:
+        AuthType: NONE
+      Environment:
+        Variables:
+          TG_TOKEN: !Sub '{{resolve:secretsmanager:germanizer:SecretString:TG_TOKEN}}'
+      Policies:
+        - TranslateFullAccess
+    Metadata:
+      DockerTag: ruby2.7-v1
+      DockerContext: ./
+      Dockerfile: Containerfile
+
+Outputs:
+  GermanizerUrl:
+    Description: "Germanizer URL"
+    Value: !GetAtt GermanizerFunctionUrl.FunctionUrl
+  GermanizerFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt GermanizerFunction.Arn
+  GermanizerFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt GermanizerFunctionRole.Arn
